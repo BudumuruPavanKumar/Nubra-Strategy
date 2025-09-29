@@ -1,0 +1,447 @@
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nubra Smart Trading Assistant - Product Demo</title>
+<link href="styles/style.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/></head><!DOCTYPE html>
+
+<html lang="en">
+
+<body>
+<!-- Header -->
+<header class="header">
+<div class="container">
+<div class="header__content">
+<div class="header__brand">
+<div class="logo">
+<div class="logo__icon"></div>
+<span class="logo__text">Nubra</span>
+</div>
+</div>
+<nav class="header__nav">
+<a class="nav-link active" href="#dashboard">Dashboard</a>
+<a class="nav-link" href="#portfolio">Portfolio</a>
+<a class="nav-link" href="#learn">Learn</a>
+<a class="nav-link" href="#settings">Settings</a>
+</nav>
+<div class="header__actions">
+<button class="btn btn--outline btn--sm">94,85,600</button>
+<button class="btn btn--ghost btn--sm" id="takeTourBtn">Take Tour</button>
+<button aria-pressed="false" class="btn btn--outline btn--sm" id="darkModeToggle">
+<span id="darkModeLabel">Dark</span>
+</button>
+<div class="user-avatar">SR</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="main-content" tabindex="0">
+<!-- Onboarding Modal -->
+<div aria-modal="true" class="modal hidden" id="onboardingModal" role="dialog">
+<div class="modal__backdrop" onclick="closeOnboarding()"></div>
+<div class="modal__content onboarding">
+<div class="onboarding__header">
+<h2>Welcome to Smart Trading Assistant</h2>
+<button class="modal__close" onclick="closeOnboarding()">×</button>
+</div>
+<div class="onboarding__body">
+<!-- Step 1: Welcome -->
+<div class="onboarding__step" id="step1">
+<div class="onboarding__icon">🚀</div>
+<h3>Transform Your Trading Experience</h3>
+<p>Discover how Smart Trading Assistant learns from your manual trading patterns and helps you transition to algorithmic trading seamlessly.</p>
+<div class="feature-grid">
+<div class="feature-item">
+<div class="feature-icon">🔍</div>
+<span>Pattern Recognition</span>
+</div>
+<div class="feature-item">
+<div class="feature-icon">⚡</div>
+<span>Smart Automation</span>
+</div>
+<div class="feature-item">
+<div class="feature-icon">📈</div>
+<span>Performance Tracking</span>
+</div>
+</div>
+</div>
+<!-- Step 2: Features -->
+<div class="onboarding__step hidden" id="step2">
+<div class="onboarding__icon">🎯</div>
+<h3>Your Personal Trading Coach</h3>
+<p>STA analyzes your trading history and identifies opportunities for automation while respecting your trading style.</p>
+<div class="demo-preview">
+<div class="demo-card">
+<h4>Pattern Detected</h4>
+<p>"You often buy when RSI &lt; 30"</p>
+<span class="success-rate">74% Success Rate</span>
+</div>
+</div>
+</div>
+<!-- Step 3: Get Started -->
+<div class="onboarding__step hidden" id="step3">
+<div class="onboarding__icon">🎉</div>
+<h3>Ready to Start Your Journey?</h3>
+<p>Let's explore your trading dashboard and see how STA can enhance your trading experience.</p>
+<div class="progress-preview">
+<div class="progress-item">✅ Account Setup Complete</div>
+<div class="progress-item">✅ Trading History Analyzed</div>
+<div class="progress-item">🔄 Smart Suggestions Ready</div>
+</div>
+</div>
+</div>
+<div class="onboarding__footer">
+<div class="progress-dots">
+<span class="dot active" id="dot1"></span>
+<span class="dot" id="dot2"></span>
+<span class="dot" id="dot3"></span>
+</div>
+<div class="onboarding__actions">
+<button class="btn btn--ghost" onclick="skipOnboarding()">Skip</button>
+<button class="btn btn--primary" id="nextBtn" onclick="nextStep()">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Dashboard Layout -->
+<div class="dashboard-container">
+<!-- Sidebar - Smart Trading Assistant -->
+<aside class="sidebar">
+<div class="sidebar__header">
+<h3>Smart Trading Assistant</h3>
+<div class="assistant-status online">
+<span class="status-indicator"></span>
+                        Learning from your trades
+                    </div>
+</div>
+<!-- User Stats -->
+<div class="stats-card">
+<h4>Your Trading Profile</h4>
+<div class="stats-grid">
+<div class="stat-item">
+<span class="stat-label">Total Trades</span>
+<span class="stat-value">156</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Success Rate</span>
+<span class="stat-value success">68%</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Avg Return</span>
+<span class="stat-value positive">12.4%</span>
+</div>
+<div class="stat-item">
+<span class="stat-label">Risk Level</span>
+<span class="stat-value moderate">Moderate</span>
+</div>
+</div>
+</div>
+<!-- Watchlist -->
+<div class="watchlist-card glass-card">
+<h4>Watchlist</h4>
+<form class="watchlist-form" id="watchlistForm">
+<input aria-label="Add watchlist symbol" id="watchlistInput" placeholder="Add symbol, e.g. NIFTY" type="text"/>
+<button class="btn btn--primary" type="submit">Add</button>
+</form>
+<ul class="watchlist-items" id="watchlistItems">
+<!-- items populated by JS -->
+</ul>
+</div>
+<!-- Detected Patterns -->
+<div class="patterns-card">
+<h4>Detected Trading Patterns</h4>
+<div class="pattern-list">
+<div class="pattern-item automatable" onclick="showPatternDetails('rsi')">
+<div class="pattern-info">
+<span class="pattern-type">RSI Oversold</span>
+<span class="pattern-desc">You often buy when RSI &lt; 30</span>
+<div class="pattern-stats">
+<span class="frequency">23 times</span>
+<span class="success-rate">74% success</span>
+</div>
+</div>
+<button class="automate-btn" onclick="automatePattern('rsi')">
+                                ⚡ Automate
+                            </button>
+</div>
+<div class="pattern-item automatable" onclick="showPatternDetails('ma')">
+<div class="pattern-info">
+<span class="pattern-type">MA Crossover</span>
+<span class="pattern-desc">Buying on moving average signals</span>
+<div class="pattern-stats">
+<span class="frequency">18 times</span>
+<span class="success-rate">69% success</span>
+</div>
+</div>
+<button class="automate-btn" onclick="automatePattern('ma')">
+                                ⚡ Automate
+                            </button>
+</div>
+<div class="pattern-item" onclick="showPatternDetails('support')">
+<div class="pattern-info">
+<span class="pattern-type">Support Bounce</span>
+<span class="pattern-desc">Trading near support levels</span>
+<div class="pattern-stats">
+<span class="frequency">31 times</span>
+<span class="success-rate">81% success</span>
+</div>
+</div>
+<span class="manual-only">Manual Only</span>
+</div>
+</div>
+</div>
+<!-- Smart Suggestions -->
+<div class="suggestions-card">
+<h4>💡 Smart Suggestions</h4>
+<div class="suggestion-list">
+<div class="suggestion-item high-impact">
+<div class="suggestion-content">
+<strong>Automate RSI Strategy</strong>
+<p>Save 2 hours daily with automated RSI-based entries</p>
+<span class="impact-badge">High Impact</span>
+</div>
+<button class="implement-btn" onclick="implementSuggestion('rsi-auto')">
+                                Implement
+                            </button>
+</div>
+<div class="suggestion-item medium-impact">
+<div class="suggestion-content">
+<strong>Set MA Alerts</strong>
+<p>Never miss moving average crossover signals</p>
+<span class="impact-badge">Medium Impact</span>
+</div>
+<button class="implement-btn" onclick="implementSuggestion('ma-alerts')">
+                                Setup
+                            </button>
+</div>
+</div>
+</div>
+<!-- Learning Progress -->
+<div class="progress-card">
+<h4>📚 Your Algorithm Journey</h4>
+<div class="progress-info">
+<div class="progress-level">
+<span>Level 2: Intermediate</span>
+<span class="next-goal">Next: Learn Multi-leg Strategies</span>
+</div>
+<div class="progress-bar">
+<div class="progress-fill" style="width: 33%"></div>
+</div>
+<div class="progress-stats">
+<span>8 of 24 modules completed</span>
+</div>
+</div>
+<div class="badges">
+<span class="badge earned">🏆 First Algorithm</span>
+<span class="badge earned">📊 Backtesting Pro</span>
+<span class="badge locked">🎯 Risk Manager</span>
+</div>
+</div>
+</aside>
+<!-- Main Dashboard -->
+<div class="dashboard-main">
+<!-- Quick Stats -->
+<div class="quick-stats">
+<div class="stat-card positive">
+<div class="stat-icon">📈</div>
+<div class="stat-content">
+<span class="stat-label">Today's P&amp;L</span>
+<span class="stat-value">+₹2,340</span>
+</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">💼</div>
+<div class="stat-content">
+<span class="stat-label">Total Portfolio</span>
+<span class="stat-value">₹4,85,600</span>
+</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">🤖</div>
+<div class="stat-content">
+<span class="stat-label">Active Algorithms</span>
+<span class="stat-value">3</span>
+</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">⚡</div>
+<div class="stat-content">
+<span class="stat-label">Automation Rate</span>
+<span class="stat-value">45%</span>
+</div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="chart-section">
+<div class="chart-header">
+<h3>NIFTY 21500 CE - Live Chart</h3>
+<div class="chart-controls">
+<button class="timeframe active">1M</button>
+<button class="timeframe">5M</button>
+<button class="timeframe">15M</button>
+<button class="timeframe">1H</button>
+<button class="timeframe">1D</button>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="tradingChart"></canvas>
+<!-- Chart Overlay for Trading -->
+<div class="chart-overlay hidden" id="chartOverlay">
+<div class="quick-trade">
+<button class="trade-btn buy" onclick="quickTrade('buy')">
+                                    BUY ₹45.50
+                                </button>
+<button class="trade-btn sell" onclick="quickTrade('sell')">
+                                    SELL ₹45.30
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Positions & Orders -->
+<div class="positions-section">
+<div class="section-tabs">
+<div>
+<button class="tab active" onclick="showTab('positions')">Positions</button>
+<button class="tab" onclick="showTab('orders')">Orders</button>
+<button class="tab" onclick="showTab('algorithms')">Algorithms</button>
+</div>
+<div class="section-actions">
+<button class="btn btn--outline btn--sm" id="exportCsvBtn">Export Positions CSV</button>
+</div>
+</div>
+<!-- Positions Tab -->
+<div class="tab-content" id="positions">
+<div class="positions-table">
+<div class="table-header">
+<span>Symbol</span>
+<span>Qty</span>
+<span>Price</span>
+<span>P&amp;L</span>
+<span>Actions</span>
+</div>
+<div class="table-row positive">
+<span class="symbol">NIFTY23DEC21000CE</span>
+<span>50</span>
+<span>₹45.50</span>
+<span class="pnl positive">+₹1,250</span>
+<div class="actions">
+<button class="action-btn">Exit</button>
+<button class="action-btn" onclick="suggestAutomation('NIFTY23DEC21000CE')">🤖</button>
+</div>
+</div>
+<div class="table-row negative">
+<span class="symbol">BANKNIFTY23DEC46000PE</span>
+<span>25</span>
+<span>₹89.20</span>
+<span class="pnl negative">-₹340</span>
+<div class="actions">
+<button class="action-btn">Exit</button>
+<button class="action-btn" onclick="suggestAutomation('BANKNIFTY23DEC46000PE')">🤖</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Orders Tab -->
+<div class="tab-content hidden" id="orders">
+<div class="orders-table">
+<div class="table-header">
+<span>Time</span>
+<span>Symbol</span>
+<span>Type</span>
+<span>Status</span>
+</div>
+<div class="table-row">
+<span>10:45</span>
+<span>NIFTY23DEC21000CE</span>
+<span>BUY</span>
+<span class="status executed">Executed</span>
+</div>
+</div>
+</div>
+<!-- Algorithms Tab -->
+<div class="tab-content hidden" id="algorithms">
+<div class="algorithms-list">
+<div class="algorithm-card active">
+<div class="algo-header">
+<h4>RSI Oversold Strategy</h4>
+<span class="algo-status running">Running</span>
+</div>
+<div class="algo-stats">
+<span>Trades: 12</span>
+<span class="positive">P&amp;L: +₹2,340</span>
+<span>Success: 75%</span>
+</div>
+<div class="algo-actions">
+<button class="action-btn">Pause</button>
+<button class="action-btn">Edit</button>
+<button class="action-btn">Stats</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Educational Content Section -->
+<div class="education-section hidden" id="educationSection">
+<div class="education-content">
+<h2>📚 Learning Center</h2>
+<div class="learning-path">
+<div class="path-progress">
+<div class="progress-step completed">
+<div class="step-number">1</div>
+<div class="step-content">
+<h4>Automation Basics</h4>
+<p>Learn the fundamentals of algorithmic trading</p>
+</div>
+</div>
+<div class="progress-step completed">
+<div class="step-number">2</div>
+<div class="step-content">
+<h4>Strategy Building</h4>
+<p>Create your first automated strategy</p>
+</div>
+</div>
+<div class="progress-step current">
+<div class="step-number">3</div>
+<div class="step-content">
+<h4>Multi-leg Strategies</h4>
+<p>Advanced options strategies automation</p>
+</div>
+</div>
+<div class="progress-step">
+<div class="step-number">4</div>
+<div class="step-content">
+<h4>Portfolio Management</h4>
+<p>Optimize your entire portfolio</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Success/Notification Messages -->
+<div class="notifications-container" id="notifications"></div>
+<!-- Pattern Details Modal -->
+<div aria-modal="true" class="modal hidden" id="patternModal" role="dialog">
+<div class="modal__backdrop" onclick="closePatternModal()"></div>
+<div class="modal__content pattern-details">
+<div class="modal__header">
+<h3 id="patternTitle">Pattern Details</h3>
+<button class="modal__close" onclick="closePatternModal()">×</button>
+</div>
+<div class="modal__body" id="patternContent">
+<!-- Pattern details will be populated here -->
+</div>
+</div>
+</div>
+<script src="js/app.js"></script>
+<script src="app.js"></script></body>
+</html>
